@@ -1,4 +1,4 @@
-(ns aoc-2015.aoc21
+ (ns aoc-2015.aoc21
   (:require [clojure.string :as str]
             [clojure.math.combinatorics :as combs]
             [clojure.set :refer [intersection]]
