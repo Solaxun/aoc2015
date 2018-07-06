@@ -203,7 +203,7 @@
           (let [neighbors (neighbor-func node)
                 prev-node (came-from node)
                 prev-cost (cost-so-far node)
-                cheaper (remove #(< (cost-so-far % 1e6)
+                cheaper (remove #(< (cost-so-far % Double/POSITIVE_INFINITY)
                                     (+ prev-cost (path-cost node %)))
                                 neighbors)
                 new-nodes (map #(vector (+ prev-cost
