@@ -199,7 +199,8 @@
          cost-so-far {start 0}
          came-from   {start nil}]
     (if-let [[node-cost node :as node-state] (first q)]
-      (if (goal? node) node
+      (if (goal? node)
+          (reverse (take-while (complement nil?) (iterate came-from node)))
           (let [neighbors (neighbor-func node)
                 prev-node (came-from node)
                 prev-cost (cost-so-far node)
@@ -214,7 +215,7 @@
                    (->> cheaper
                         (map #(vector % (+ prev-cost (path-cost node %))))
                         (into cost-so-far))
-                   (into came-from (map (juxt identity (fn [_] node)) new-nodes)))))
+                   (into came-from (map (juxt identity (fn [_] node)) cheaper)))))
       "no more neigbors")))
 
 (a-star-search molecule process-molecule #(= %  "e") count (fn [prev cur] 1))
