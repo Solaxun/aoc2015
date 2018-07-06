@@ -202,18 +202,17 @@
       (if (goal? node) node
           (let [neighbors (neighbor-func node)
                 prev-node (came-from node)
-                ;; 0 to handle first pass where prev-node is nil
-                prev-cost (cost-so-far prev-node 0)
+                prev-cost (cost-so-far node)
                 cheaper (remove #(< (cost-so-far % 1e6)
-                                    (+ prev-cost (path-cost prev-node %)))
+                                    (+ prev-cost (path-cost node %)))
                                 neighbors)
                 new-nodes (map #(vector (+ prev-cost
-                                           (path-cost prev-node %)
+                                           (path-cost node %)
                                            (remain-cost %)) %)
                                cheaper)]
             (recur (into q new-nodes)
                    (->> cheaper
-                        (map #(vector % (+ prev-cost (path-cost prev-node %))))
+                        (map #(vector % (+ prev-cost (path-cost node %))))
                         (into cost-so-far))
                    (into came-from (map (juxt identity (fn [_] node)) new-nodes)))))
       "no more neigbors")))
