@@ -198,7 +198,7 @@
   (loop [q (conj (sorted-set) [0 start])
          cost-so-far {start 0}
          came-from   {start nil}]
-    (if-let [[node-cost node] (first q)]
+    (if-let [[node-cost node :as node-state] (first q)]
       (if (goal? node) node
           (let [neighbors (neighbor-func node)
                 prev-node (came-from node)
@@ -210,7 +210,7 @@
                                            (path-cost node %)
                                            (remain-cost %)) %)
                                cheaper)]
-            (recur (into q new-nodes)
+            (recur (into (disj q node-state) new-nodes)
                    (->> cheaper
                         (map #(vector % (+ prev-cost (path-cost node %))))
                         (into cost-so-far))
