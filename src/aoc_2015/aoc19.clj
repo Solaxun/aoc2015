@@ -194,7 +194,8 @@
         (for [i (range 20)] (random-search molecule process-molecule count #(= % "e") 1e3)))
 
 
-(defn a-star-search [start neighbor-func goal? remain-cost path-cost]
+(defn a-star-search 
+  [start neighbor-func goal? remain-cost path-cost]
   (loop [q (conj (sorted-set) [0 start])
          cost-so-far {start 0}
          came-from   {start nil}]
@@ -202,7 +203,6 @@
       (if (goal? node)
           (reverse (take-while (complement nil?) (iterate came-from node)))
           (let [neighbors (neighbor-func node)
-                prev-node (came-from node)
                 prev-cost (cost-so-far node)
                 cheaper (remove #(< (cost-so-far % Double/POSITIVE_INFINITY)
                                     (+ prev-cost (path-cost node %)))
@@ -215,7 +215,7 @@
                    (->> cheaper
                         (map #(vector % (+ prev-cost (path-cost node %))))
                         (into cost-so-far))
-                   (into came-from (map (juxt identity (fn [_] node)) cheaper)))))
-      "no more neigbors")))
+                   (into came-from (map vector cheaper (repeat node))))))
+      cost-so-far)))
 
 (a-star-search molecule process-molecule #(= %  "e") count (fn [prev cur] 1))
