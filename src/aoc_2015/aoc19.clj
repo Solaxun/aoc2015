@@ -219,3 +219,58 @@
       "no more neigbors")))
 
 (a-star-search molecule process-molecule #(= %  "e") count (fn [prev cur] 1))
+(def nums
+  [1
+   3
+   5
+   11
+   13
+   17
+   19
+   23
+   29
+   31
+   37
+   41
+   43
+   47
+   53
+   59
+   67
+   71
+   73
+   79
+   83
+   89
+   97
+   101
+   103
+   107
+   109
+   113])
+nums
+
+(def nums-sample [1 2 3 4 5 7 8 9 10 11])
+
+(def valid-partitions
+  (filter #(= (count nums-sample) (apply + (map count %)))
+          (apply concat
+                 (for [x (combs/subsets nums)
+                       :let [remain (filter #(>= (apply + x) %)
+                                            (set/difference (set nums) (set x)))]]
+                   (for [s2 (combs/partitions remain :min 2 :max 2)
+                         :when (apply = (apply + x) (map #(apply + %) s2))]
+                     (into [(vec x)] s2))))))
+
+(defn min-qe [coll]
+  (let [qe (->> coll sort first (apply *))
+        sz (->> coll sort first count)]
+    [sz qe]))
+
+(->> valid-partitions
+     (sort-by min-qe)
+     ffirst
+     (apply *))
+
+
+(take-while not-empty (iterate rest nums-sample))
