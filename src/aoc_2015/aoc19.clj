@@ -194,29 +194,29 @@
         (for [i (range 20)] (random-search molecule process-molecule count #(= % "e") 1e3)))
 
 
-(defn a-star-search [start neighbor-func goal? remain-cost path-cost]
+(defn a-star-search 
+  [start neighbor-func goal? remain-cost path-cost]
   (loop [q (conj (sorted-set) [0 start])
          cost-so-far {start 0}
          came-from   {start nil}]
-    (if-let [[node-cost node] (first q)]
-      (if (goal? node) node
+    (if-let [[node-cost node :as node-state] (first q)]
+      (if (goal? node)
+          (reverse (take-while (complement nil?) (iterate came-from node)))
           (let [neighbors (neighbor-func node)
-                prev-node (came-from node)
-                ;; 0 to handle first pass where prev-node is nil
-                prev-cost (cost-so-far prev-node 0)
-                cheaper (remove #(< (cost-so-far % 1e6)
-                                    (+ prev-cost (path-cost prev-node %)))
+                prev-cost (cost-so-far node)
+                cheaper (remove #(< (cost-so-far % Double/POSITIVE_INFINITY)
+                                    (+ prev-cost (path-cost node %)))
                                 neighbors)
                 new-nodes (map #(vector (+ prev-cost
-                                           (path-cost prev-node %)
+                                           (path-cost node %)
                                            (remain-cost %)) %)
                                cheaper)]
-            (recur (into q new-nodes)
+            (recur (into (disj q node-state) new-nodes)
                    (->> cheaper
-                        (map #(vector % (+ prev-cost (path-cost prev-node %))))
+                        (map #(vector % (+ prev-cost (path-cost node %))))
                         (into cost-so-far))
-                   (into came-from (map (juxt identity (fn [_] node)) new-nodes)))))
-      "no more neigbors")))
+                   (into came-from (map vector cheaper (repeat node))))))
+      cost-so-far)))
 
 (a-star-search molecule process-molecule #(= %  "e") count (fn [prev cur] 1))
 (def nums
